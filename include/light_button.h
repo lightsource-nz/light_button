@@ -29,6 +29,11 @@ struct button_driver
 {
         const uint8_t *name;
         struct button_driver_context *(*spawn_context)();
+        //   frees whatever spawn_context() allocated. Called when the device holding that
+        // context is released, so a context outlives exactly the device it was spawned for.
+        // OPTIONAL: a driver whose context is not heap-allocated leaves this NULL and the
+        // release path skips it
+        void (*destroy_context)(struct button_driver_context *ctx);
         void (*init_device)(struct button_device *);
         void (*reset)(struct button_device *);
         // reads the button's RAW, undebounced level: true when pressed. debouncing is

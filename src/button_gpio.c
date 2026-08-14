@@ -15,6 +15,7 @@ struct button_gpio_state {
 };
 
 static struct button_driver_context *_gpio_spawn_context();
+static void _gpio_destroy_context(struct button_driver_context *ctx);
 static void _gpio_init(struct button_device *dev);
 static void _gpio_reset(struct button_device *dev);
 static bool _gpio_read(struct button_device *dev);
@@ -22,6 +23,7 @@ static bool _gpio_read(struct button_device *dev);
 static struct button_driver _driver_gpio = {
         .name = "button.driver:gpio",
         .spawn_context = _gpio_spawn_context,
+        .destroy_context = _gpio_destroy_context,
         .init_device = _gpio_init,
         .reset = _gpio_reset,
         .read = _gpio_read
@@ -44,6 +46,15 @@ static struct button_driver_context *_gpio_spawn_context()
         state->pin = 0;
         state->active_low = true;
         return ctx;
+}
+
+//   the counterpart to _gpio_spawn_context(), called from the device release path
+// when the device this context was spawned for is freed. Frees in the reverse of
+// the order allocated: the state first, then the context that points at it
+static void _gpio_destroy_context(struct button_driver_context *ctx)
+{
+        light_free((void *)ctx->state);
+        light_free(ctx);
 }
 
 static void _gpio_init(struct button_device *dev)
