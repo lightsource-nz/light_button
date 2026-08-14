@@ -36,7 +36,7 @@ static volatile uint16_t next_device_id;
 void light_button_init()
 {
         next_device_id = 0;
-        light_object_init(&device_root.header, &ltype_button_device_root);
+        light_object_init_static(&device_root.header, &ltype_button_device_root);
         light_object_add(&device_root.header, NULL, "root_device");
 }
 struct button_device_root *light_button_device_get_root()
